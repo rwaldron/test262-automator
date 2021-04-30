@@ -17,7 +17,7 @@
     "esvu": "./node_modules/.bin/esvu; cp -r  ~/.esvu/bin binpath; cp ~/.esvu/status.json status.json",
     "lint": "npm-run-all \"lint:* {@}\" -c --",
     "lint:js": "eslint --ext .json --ext .js . --ignore-pattern \"**/*.js\"",
-    "parse": "node parse.js",
+    "parse": "node parse.mjs",
     "prettier": "prettier --write \"**/*.{js,json}\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
