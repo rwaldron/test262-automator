@@ -1,5 +1,6 @@
 # Test262 Automator
 
+[![CircleCI](https://circleci.com/gh/rwaldron/test262-automator/tree/master.svg?style=svg)](https://circleci.com/gh/rwaldron/test262-automator/tree/master)
 
 
 ## Get Started
