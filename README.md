@@ -16,12 +16,12 @@ npm run esvu;
 node --experimental-json-modules capture.mjs --engine=xs --binPath=./binpath --test262Dir=$TEST262_DIR --name=xs
 ```
 
-- `engine` is required. See [Valid engines](#valid-engines).
+- `engine` is required. See [Engines](#engines).
 - `test262Dir` is required. `$TEST262_DIR` points to a test262 repository root.
 - `binPath` is optional. This defaults to `./binpath` (created by `npm run esvu`).
 - `name` is optional. This defaults to the same value as `engine`.
 
-### Valid engines: 
+### Engines
 
 ```
 chakra
@@ -34,4 +34,3 @@ spidermonkey
 v8
 xs
 ```
-
