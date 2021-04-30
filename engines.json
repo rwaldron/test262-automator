@@ -1,0 +1,11 @@
+[
+  ["chakra", { "hostType": "ch" }],
+  ["engine262", { "hostType": "engine262" }],
+  ["graaljs", { "hostType": "graaljs" }],
+  ["hermes", { "hostType": "hermes" }],
+  ["javascriptcore", { "hostType": "jsc" }],
+  ["qjs", { "hostType": "qjs", "binName": "quickjs-run-test262" }],
+  ["spidermonkey", { "hostType": "jsshell" }],
+  ["v8", { "hostType": "d8" }],
+  ["xs", { "hostType": "xs" }]
+]
