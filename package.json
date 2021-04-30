@@ -13,7 +13,7 @@
     "yargs": "^14.2.0"
   },
   "scripts": {
-    "capture": "node capture.mjs -t test262",
+    "capture": "node --experimental-json-modules capture.mjs -t test262",
     "esvu": "./node_modules/.bin/esvu --engines=all; cp -r  ~/.esvu/bin binpath; cp ~/.esvu/status.json status.json",
     "lint": "npm-run-all \"lint:* {@}\" -c --",
     "lint:js": "eslint --ext .json --ext .js . --ignore-pattern \"**/*.js\"",
