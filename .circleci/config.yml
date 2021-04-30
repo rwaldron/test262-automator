@@ -1,0 +1,226 @@
+version: 2.1
+
+orbs:
+  aws-s3: circleci/aws-s3@2.0.0
+
+references:
+  js_deps_cache_key: &js_deps_cache_key
+    v1-dependency-js-deps-{{ checksum "package.json" }}
+  js_deps_backup_cache_key: &js_deps_backup_cache_key
+    v1-dependency-js-deps
+
+restore_cache: &restore_cache
+  restore_cache:
+    keys:
+      - *js_deps_cache_key
+      - *js_deps_backup_cache_key
+
+save_cache: &save_cache
+  save_cache:
+    paths:
+      - node_modules
+    key: *js_deps_cache_key
+
+commands:
+  npm_install:
+    description: npm install
+    steps:
+      - *restore_cache
+      - run: npm install
+      - *save_cache
+  install_engines_via_esvu:
+    description: Install engines via ESVU
+    steps:
+      - run:
+          name: install engines via esvu
+          command: |
+            npm run esvu
+
+  fetch_test262:
+    description: Fetch Test262
+    steps:
+      - run:
+          name: fetch test262, remove the test/harness folder
+          command: |
+            git clone --depth=1 https://github.com/tc39/test262.git
+            rm -r test262/test/harness
+  run_capture_parse:
+    description: Execute, Capture and Parse
+    steps:
+      - attach_workspace:
+          at: capture
+      - run:
+          name: Run & Capture
+          command: npm run capture
+          no_output_timeout: 30m
+      - run: npm run parse
+      - persist_to_workspace:
+          root: capture
+          paths:
+            - '*'
+
+executors:
+  node:
+    docker:
+      - image: cimg/node:16.0.0
+  deploy:
+    docker:
+      - image: cimg/python:3.6
+
+execution_steps: &execution_steps
+  steps:
+    - checkout
+    - npm_install
+    - install_engines_via_esvu
+    - fetch_test262
+    - run_capture_parse
+
+jobs:
+  ChakraCore:
+    executor: node
+    environment:
+      BIN_PATH: binpath
+      ENGINE_NAME: chakra
+      ENGINE_LABEL: chakra
+    <<: [*execution_steps]
+  engine262:
+    executor: node
+    environment:
+      BIN_PATH: binpath
+      ENGINE_NAME: engine262
+      ENGINE_LABEL: engine262
+      HOSTARGS: --features=all
+    <<: [*execution_steps]
+  JSC:
+    executor: node
+    environment:
+      LANG: C
+      BIN_PATH: binpath
+      ENGINE_NAME: javascriptcore
+      ENGINE_LABEL: javascriptcore
+    <<: [*execution_steps]
+  QuickJS:
+    executor: node
+    environment:
+      BIN_PATH: binpath
+      ENGINE_NAME: qjs
+    <<: [*execution_steps]
+  SpiderMonkey:
+    executor: node
+    environment:
+      BIN_PATH: binpath
+      ENGINE_NAME: spidermonkey
+      ENGINE_LABEL: spidermonkey
+    <<: [*execution_steps]
+  V8:
+    executor: node
+    environment:
+      BIN_PATH: binpath
+      ENGINE_NAME: v8
+      ENGINE_LABEL: v8
+    <<: [*execution_steps]
+  "V8 --harmony":
+    executor: node
+    environment:
+      BIN_PATH: binpath
+      ENGINE_NAME: v8
+      ENGINE_LABEL: v8-harmony
+      HOSTARGS: --harmony
+    <<: [*execution_steps]
+  XS:
+    executor: node
+    environment:
+      BIN_PATH: binpath
+      ENGINE_NAME: xs
+    <<: [*execution_steps]
+  deploy_dryrun:
+    executor: deploy
+    environment:
+      AWS_REGION: us-east-2
+    steps:
+      - attach_workspace:
+          at: capture
+      - run: ls -lsa capture/
+      - aws-s3/copy:
+          from: capture
+          to: 's3://test262-automator/captures/'
+          arguments: '--dryrun --recursive --acl public-read'
+  deploy:
+    executor: deploy
+    environment:
+      AWS_REGION: us-east-2
+    steps:
+      - attach_workspace:
+          at: capture
+      - run: ls -lsa capture/
+      - aws-s3/copy:
+          from: capture
+          to: 's3://test262-automator/captures/'
+          arguments: '--recursive --acl public-read'
+workflows:
+  version: 2
+  Test262 Test Run and Capture:
+    jobs:
+      - ChakraCore
+      - engine262
+      - JSC
+      - QuickJS
+      - SpiderMonkey
+      - V8
+      - "V8 --harmony"
+      - XS
+      - deploy:
+          requires: [
+            ChakraCore,
+            engine262,
+            JSC,
+            QuickJS,
+            SpiderMonkey,
+            V8,
+            "V8 --harmony",
+            XS,
+          ]
+          filters:
+            branches:
+              only: master
+      - deploy_dryrun:
+          requires: [
+            ChakraCore,
+            engine262,
+            JSC,
+            QuickJS,
+            SpiderMonkey,
+            V8,
+            "V8 --harmony",
+            XS,
+          ]
+          filters:
+            branches:
+              ignore: master
+  Test262 Test Run and Capture Weekly:
+    triggers:
+      - schedule:
+          cron: "0 0 * * 0" # "At 00:00 on Sunday, every week"
+          filters:
+            branches:
+              only: master
+    jobs:
+      - ChakraCore
+      - engine262
+      - JSC
+      - QuickJS
+      - SpiderMonkey
+      - V8
+      - "V8 --harmony"
+      - XS
+      - deploy:
+          requires: [
+            ChakraCore,
+            engine262,
+            JSC,
+            QuickJS,
+            SpiderMonkey,
+            V8,
+            "V8 --harmony",
+            XS,
+          ]
