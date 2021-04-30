@@ -21,6 +21,7 @@ node --experimental-json-modules capture.mjs --engine=xs --binPath=./binpath --t
 - `test262Dir` is required. `$TEST262_DIR` points to a test262 repository root.
 - `binPath` is optional. This defaults to `./binpath` (created by `npm run esvu`).
 - `name` is optional. This defaults to the same value as `engine`.
+- `preprocessor` is optional. 
 
 ### Engines
 
