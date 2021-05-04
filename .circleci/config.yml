@@ -161,7 +161,7 @@ workflows:
   version: 2
   Test262 Test Run and Capture:
     jobs:
-      - ChakraCore
+      # - ChakraCore
       - engine262
       - JSC
       - QuickJS
@@ -171,7 +171,7 @@ workflows:
       - XS
       - deploy:
           requires: [
-            ChakraCore,
+            # ChakraCore,
             engine262,
             JSC,
             QuickJS,
@@ -185,7 +185,7 @@ workflows:
               only: master
       - deploy_dryrun:
           requires: [
-            ChakraCore,
+            # ChakraCore,
             engine262,
             JSC,
             QuickJS,
@@ -205,7 +205,7 @@ workflows:
             branches:
               only: master
     jobs:
-      - ChakraCore
+      # - ChakraCore
       - engine262
       - JSC
       - QuickJS
@@ -215,7 +215,7 @@ workflows:
       - XS
       - deploy:
           requires: [
-            ChakraCore,
+            # ChakraCore,
             engine262,
             JSC,
             QuickJS,
