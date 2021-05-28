@@ -4,7 +4,7 @@
   "description": "",
   "main": "capture.mjs",
   "dependencies": {
-    "eshost": "^7.6.0",
+    "eshost": "^8.0.0",
     "esvu": "^1.2.3",
     "node-fetch": "^2.6.0",
     "progress-stream": "^2.0.0",
